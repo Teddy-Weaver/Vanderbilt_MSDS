@@ -8,8 +8,8 @@ Over the past several years, Nashville has been one of the fastest growing citie
 General consumers, in particular those not very familiar with short-term rentals (Airbnb, VRBO, etc.), looking to stay in Nashville. We assumed they are not intimately familiar with the area and have no strong inclinations about where to stay.
 
 ### Partners
-[Rastko Stojin](https://github.com/ok-tsar)<br>
-[Shaswat Rajput](https://github.com/shaswat01)
+* [Rastko Stojin](https://github.com/ok-tsar)
+* [Shaswat Rajput](https://github.com/shaswat01)
 
 
 ### About the Data
@@ -27,5 +27,5 @@ For our analysis, we focused on listing data. If we were to expand or continue o
 
 
 ### Description of files
-airbnb_nashville.rmd - Working document for analysis and vizualziations
-presentation.pdf - Completed presentation
+* airbnb_nashville.rmd - Working document for analysis and vizualziations<br>
+* presentation.pdf - Completed presentation
