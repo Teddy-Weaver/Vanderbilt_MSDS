@@ -8,11 +8,6 @@ Over the past several years, Nashville has been one of the fastest growing citie
 **Audience**<br>
 General consumers, in particular those not very familiar with short-term rentals (Airbnb, VRBO, etc.), looking to stay in Nashville. We assumed they are not intimately familiar with the area and have no strong inclinations about where to stay.
 
-### Partners
-* [Rastko Stojin](https://github.com/ok-tsar)
-* [Shaswat Rajput](https://github.com/shaswat01)
-
-
 ### About the Data
 Unofficial Airbnb data for the Nashville-metro area was created by [Inside Airbnb](http://insideairbnb.com). Available data includes publicly available property listings and reviews as of 9/20/19.
 On their website, Inside Airbnb does call out significant caveats related to their collected data. Below are a few of the most important ones relative to our analysis.
@@ -22,6 +17,7 @@ On their website, Inside Airbnb does call out significant caveats related to the
 
 For our analysis, we focused on listing data. If we were to expand or continue our analysis we would also perform a textual analysis of property reviews.
 
+
 ### Technology Used 
 * R (tidyverse, ggplot2, ggcorplot, stringr)
 * Tableau
@@ -30,3 +26,8 @@ For our analysis, we focused on listing data. If we were to expand or continue o
 ### Description of files
 * airbnb_nashville.rmd - Working document for analysis and vizualziations<br>
 * presentation.pdf - Completed presentation
+
+
+### Partners
+* [Rastko Stojin](https://github.com/ok-tsar)
+* [Shaswat Rajput](https://github.com/shaswat01)
