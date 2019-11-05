@@ -1,0 +1,105 @@
+---
+title: "Understanding Simulation Error"
+author: "Teddy Weaver"
+date: "9/1/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+library(reshape2)
+library(gridExtra)
+```
+
+```{r, variables, echo=FALSE}
+# Number of observations (data points)
+n <- 300000
+
+# Probability
+p <- c(0.01, 0.05, 0.10, 0.25, 0.50)
+line_labels <- c("p = 0.01", "p = 0.05", "p = 0.10","p = 0.25", "p = 0.50") 
+
+# Replicates (iterations per observation)
+r <- rep(NA, 14)
+for (i in 2:15) {
+  r[i-1] <- 2^i
+}
+
+# Set up matrices to record results
+abs_error <- matrix(nrow = length(r), ncol = length(p))
+rel_error <- matrix(nrow = length(r), ncol = length(p))
+```
+
+```{r monte_carlo, echo=FALSE}
+p_hat <- rep(NA, n)
+for (i in 1:length(r)) {
+  for (j in 1:length(p)) {
+    p_hat <- rbinom(n, r[i], p[j]) / r[i]
+    abs_error[i,j] <- mean(abs(p[j] - p_hat))
+    rel_error[i,j] <- abs_error[i,j] / p[j]
+  }
+}
+
+```
+
+```{r df_convert, echo=FALSE}
+abs_error <- data.frame(abs_error)
+abs_error$replicate <- r
+abs_error <- melt(abs_error, id.vars = "replicate")
+
+rel_error <- data.frame(rel_error)
+rel_error$replicate <- r
+rel_error <- melt(rel_error, id.vars = "replicate")
+```
+
+```{r plots, echo = FALSE}
+# Absolute Error
+abs_error_plot <- ggplot(abs_error, aes(x=replicate, y=value, group=variable, color=variable)) +
+  geom_line() +
+  geom_point() +
+  scale_x_log10(breaks = r) +
+  theme(panel.background = element_blank(), axis.line = element_line(size = .2)) +
+  xlab("# of Replicates") + ylab("Absolute Error") + 
+  scale_color_manual(values=c("#E41B1B", "#387EB8", "#4EAF4A", "#984EA3", "#FF7F00"), labels = line_labels, name="")
+
+# Relative Error
+rel_error_plot <- ggplot(rel_error, aes(x=replicate, y=value, group=variable, color=variable)) +
+  geom_line() +
+  geom_point() +
+  scale_x_log10(breaks = r) +
+  theme(panel.background = element_blank(), axis.line = element_line(size = .2)) +
+  labs(x ="# of Replicates", y = "Relative Error") +
+  scale_color_manual(values=c("#E41B1B", "#387EB8", "#4EAF4A", "#984EA3", "#FF7F00"), labels = line_labels, name ="")
+```
+
+
+It can be hard enough to predict outcomes of a single event, like rolling a pair of dice or hiring process for a job applicant. Now what about a series of events, like 100 or even 1,000 job applicants? Understanding series of related events, like these two examples is a **[stochastic process](https://en.wikipedia.org/wiki/Stochastic_process)**, where we are able to build models in an attempt to predict future outcomes.
+
+The models for each process will vary significantly. For rolling two dice, the model is probably quite simple, whereas job applicants could have a wide range of factors (location, position, interviewers, years of experience, etc.) that need to be taken into consideration. Applications of stochastic models are prevalent in a number of industries including finance, computer science, health care, and many others.
+
+**[Monte Carlo method](https://towardsdatascience.com/the-house-always-wins-monte-carlo-simulation-eb82787da2a3)** is a common simulation technique to evaluate the uncertainty and accuracy of stochastic models. It involves repeatedly running the simulation of the model to minimize error.
+
+As another example, let's think about flipping a coin - another stochastic process. How many times have you had an even number of heads and tails? Probably not very often! Let's say we flipped 10 times with 6 heads and 4 tails - a pretty even result, but we would have expected 5 heads and 5 tails. Our **absolute error** in this case is 1 (6-5), and our **relative error** is 10% (1/10 flips).
+
+One way to reduce this error is to repeat the Monte Carlo simulation many, many more times.
+
+But how many times? What a great question!
+
+To better visualize this, below are two graphs absolute and relative error. Each line represents a different probability value (p) and the y-axis is the number of times we repeated each simulation.
+
+
+<center>
+```{r echo = FALSE}
+grid.arrange(abs_error_plot, rel_error_plot, ncol = 1)
+```
+</center>
+<br>
+
+What does this mean?
+
+  - In both we see the greater the probability, the fewer simulations you need to run with diminishing returns around 2048 replicates.
+  - __Absolute error__ has relatively uniform behavior for each probability, converging around 4,096 replicates.
+  - __Relative Error__ the lower the probability the more replicates are needed to reduce the observed error.
+  
+As with the expected value of the Martingale strategy from the last post, it is important that the interpretation of error, both absolute and relative, remain contextual. For example, if we had \$1M to blow at the roulette table, we wouldn't really care about the aboslute error (p = .5). Our expected return would be -\$50 but if we're off by 50%, we're not really hurt by the additional \$25 lost because its such a small percentage of our intial amount (.0025%). If we only had \$100, this would be a very different story.
