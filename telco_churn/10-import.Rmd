@@ -1,21 +1,17 @@
 ---
 title: "10-import"
-output: html_notebook
 ---
 ```{r setup}
 library(tidyverse)
 library(janitor)
 library(assertr)
 library(lubridate)
-# library(data.table)
+
+setwd("..")
 ```
 
-NOTE - Please replace Assginment #3 grade for data import / cleaning with this assignment
-
 ## Goal
-Predict if a Telco (e.g. Comcast, AT&T) customer will churn (stop subscribing) from some customer information and details about their subscriptions.
-
-The 'churn' column indicates whether or not the respective customer has stopped subscribing. The goal is to predict this as accurately as possible.
+Predict if a Telco (e.g. Comcast, AT&T) customer will churn (stop subscribing) from some customer information and details about their subscriptions. The 'churn' column indicates whether or not the respective customer has stopped subscribing. The goal is to predict this as accurately as possible.
 
 ## About the Data:
 Each row is a customer that has or has not churned (churn = yes or no) in the last month. There are some demographic attributes but most of the data is related to the customer's subscription. This include services, contract type, billing method, tenure (length of time subscribed), monthly charges, and total charges.
@@ -25,6 +21,7 @@ A number of fields (e.g. senior_citizen, dependents) are converted to Logical fr
 Data Source (originally provided by IBM): https://www.kaggle.com/blastchar/telco-customer-churn
 
 
+# Import
 Import data from CSV and clean names
 ```{r data_import}
 dirty_df <- read_csv("data/Telco-Customer-Churn.csv")
@@ -62,26 +59,10 @@ dirty_df <-dirty_df %>%
 Assert - Check all columns for NA values
 ```{r check_na}
 dirty_df %>% 
-    assert(not_na, everything())
+    assert(not_na, everything(), -total_charges)
 
 # There are a few records were total charges is NA.
 # This occurs when the tenure = 0, so for new subscribers only.
-```
-
-
-Update total_charges to be 0 instead of NA, when the tenure is 0 months.
-```{r update_total_charges}
-# Create temporary df and check to make sure total charges matches between data frames.
-tmp_df <- dirty_df %>% 
-  mutate(total_charges = ifelse(tenure == 0, 0, total_charges))
-
-if(sum(tmp_df$total_charges) == sum(dirty_df$total_charges, na.rm = TRUE)) {
-  tmp_df %>% 
-    assert(not_na, total_charges)
-  
-  dirty_df <- tmp_df
-  rm(tmp_df)
-}
 ```
 
 
@@ -136,6 +117,24 @@ dirty_df %>%
 ```
 
 
+# Column Updates
+Update total_charges to be 0 instead of NA, when the tenure is 0 months.
+```{r update_total_charges}
+# Create temporary df and check to make sure total charges matches between data frames.
+tmp_df <- dirty_df %>% 
+  mutate(total_charges = ifelse(tenure == 0, 0, total_charges))
+
+if(sum(tmp_df$total_charges) == sum(dirty_df$total_charges, na.rm = TRUE)) {
+  tmp_df %>% 
+    assert(not_na, total_charges)
+  
+  dirty_df <- tmp_df
+  rm(tmp_df)
+}
+```
+
+
+# Rename Data Table
 Rename final data frame and delete temporary 'dirty_df'
 ```{r data_rename}
 telco_churn_clean <- dirty_df
