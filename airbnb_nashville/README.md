@@ -9,6 +9,7 @@ General consumers, in particular those not very familiar with short-term rentals
 
 ### Partners
 [Rastko Stojin](https://github.com/ok-tsar)
+
 [Shaswat Rajput](https://github.com/shaswat01)
 
 
