@@ -1,8 +1,13 @@
 ---
 title: "Understanding Simulation Error"
 author: "Teddy Weaver"
-date: "9/1/2019"
-output: html_document
+output:
+  pdf_document:
+    toc: TRUE
+  html_document:
+    theme: cosmo
+  editor_options:
+    chunk_output_type: inline
 ---
 
 ```{r setup, include=FALSE}
