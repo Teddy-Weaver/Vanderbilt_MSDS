@@ -1,15 +1,14 @@
 # Airbnb Nashville
 Create a polished 'slidedoc', aimed at a targeted audience, that analyzes a data set of your choosing. This slidedoc should clearly present a hypothesis and analysis of a real-world problem for your audience.
 
-**Purpose**
+**Purpose**<br>
 Over the past several years, Nashville has been one of the fastest growing cities in the county. A side effect of this growth is that hotels have reached $300-$500 per night for a room. Many tourists and visitors are resorting to short-term rentals With over 7,000 listings, how do you pick the right one?
 
-**Audience**
+**Audience**<br>
 General consumers, in particular those not very familiar with short-term rentals (Airbnb, VRBO, etc.), looking to stay in Nashville. We assumed they are not intimately familiar with the area and have no strong inclinations about where to stay.
 
 ### Partners
-[Rastko Stojin](https://github.com/ok-tsar)
-
+[Rastko Stojin](https://github.com/ok-tsar)<br>
 [Shaswat Rajput](https://github.com/shaswat01)
 
 
