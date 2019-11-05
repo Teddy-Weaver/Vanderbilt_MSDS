@@ -11,4 +11,4 @@ An intelligent freshman with little to no background in data science.
 * Explain how you used computer simulation to estimate the average number of plays before stopping.
 
 ### Technology Used 
-**R** (tidyverse, data.table, ggplot2, gridExtra, RColorBrewer)
+**R** (tidyverse, ggplot2)
