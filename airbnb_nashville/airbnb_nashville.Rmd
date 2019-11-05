@@ -1,49 +1,98 @@
 ---
 title: "Airbnb Nashville"
 ---
-
-```{r}
+# Setup
+```{r libraries}
 library(tidyverse)
 library(ggplot2)
-library(lubridate)
 library(stringr)
 library(ggcorrplot)
+# library(lubridate)
 ```
 
-```{r}
-listings <- read_csv("~/Documents/MSDS/MSDS_2019_Fall/Survey_DS_Applications/Group Work/Group Project/data/listings.csv")
+```{r set_wd}
+setwd("..")
 ```
 
 
+```{r data_import}
 
-Filtering Data
-```{r}
+
+# Data from Inside Airbnb. Removed columns that were not needed.
+listings <- read_csv("data/listings.csv")
+
+# Alternative - Direct import from Inside Airbnb (all columns).
+# listings <- read_csv("http://data.insideairbnb.com/united-states/tn/nashville/2019-09-20/data/listings.csv.gz")
+```
+
+
+# Filter Listings Data
+Removing data from the listings table that is outside our scope or adds complexity while representing a very small percentage of our data
+```{r filter_data}
 listings <- listings %>% 
-  filter(smart_location == "Nashville, TN",
-         bed_type == "Real Bed"
+  filter(smart_location == "Nashville, TN",    # Focused only on Nashville, not surrouding cities (.e.g Antioch)
+         bed_type == "Real Bed"                # Type of listing is most-likely not important to our target audience and small in number.
          )
 ```
 
 
-```{r}
+# High-Level Aggregates
+```{r data_review}
+# Average Review of all listings.
+mean(listings$review_scores_rating/20, na.rm=-TRUE)
+
+# Last Scraped Date
 listings %>% 
   group_by(last_scraped) %>% 
   summarize(count = n())
 
+# Room Type
+listings %>% 
+  group_by(room_type) %>% 
+  summarize(count = n(),
+            avg_price = mean(price, na.rm=TRUE)
+            )
+
+# Bed Type
+listings %>% 
+  group_by(bed_type) %>% 
+  summarize(count = n())
+
+# Number of records with out a rating (889 / 6098, ~15%)
+sum(is.na(listings$review_scores_rating))
+```
+
+# Cleaning & New Features
+Updating column types. Extracting numerical information from price (was a string) and neighborhood (was a string)
+```{r data_cleaning}
+# Update price to numeric column.
 listings <- listings %>% 
   mutate(price = as.numeric(str_sub(price, 2)))
 
-
+#  Neighborhood to number only (remove district)
 listings <- listings %>% 
-  mutate(neighborhood_num = str_sub(neighbourhood_cleansed, 9, str_length(neighbourhood_cleansed)))
+  mutate(neighborhood_num = as.numeric(str_sub(neighbourhood_cleansed, 9, str_length(neighbourhood_cleansed))))
 
-listings2 <- listings2 %>% 
-  mutate(neighborhood_num = str_sub(neighborhood_num,2,str_length(neighborhood_num)))
-
+# Convert fields to numeric. Needed for correlation analysis.
+listings$accommodates <- as.numeric(listings$accommodates)
 ```
 
 
-```{r}
+```{r data_features}
+listings <- listings %>% 
+  mutate(dollars_per_room = price / bedrooms,
+         dollars_per_accom = price / accommodates)
+
+# Ratings out of 5, instead of 100. Airbnb shows a 5-point rating scale in their UI
+listings <- listings %>% 
+  mutate(ratings5 = round(review_scores_rating / 20,2))
+```
+
+
+
+# Superhost vs Host
+Properties with superhosts are more prevelent throughout Nashville, higher average rating, lower rating variance, and are less expensive. This was extremely surprising a we expected Superhosts to at least be more expensive orin fewer numbers than regular hosts.
+```{r initial_analysis}
 listings %>% 
   filter(!is.na(review_scores_rating)) %>% 
   group_by(host_is_superhost) %>%
@@ -57,9 +106,22 @@ listings %>%
     price_avg = mean(price,  na.rm=TRUE),
     price_median = median(price,na.rm=TRUE)
 )
+```
 
-listings2 %>% 
-  filter(!is.na(review_scores_rating) & neighborhood_num == " 19") %>% 
+## Superhost - Unique Host Count
+This is a follow-up to the previous superhost vs host analysis. The superhost count is based on listed properties. We were curious if there were superhosts because they list more porperties or that there are more individual hosts.
+```{r unique_host_count}
+listings %>%
+  group_by(host_is_superhost) %>%
+  summarize(count = n_distinct(host_id))
+```
+
+
+## Superhost - Neighborhood 19 (Downtown Nashville)
+Continuing superhost analysis and trying to understand what might make regular host properties more expensive, on average, than regular hosts. One thought was that the most expensive distrinct might have more hosts than superhosts. This would then skew the average we saw earlier.
+```{r superhost_neighborhood_19}
+listings %>% 
+  filter(!is.na(review_scores_rating) & neighborhood_num == 19) %>% 
   group_by(host_is_superhost) %>%
   summarize(count = n(),
     rating_avg = mean(review_scores_rating/20, na.rm=TRUE),
@@ -71,39 +133,34 @@ listings2 %>%
     price_avg = mean(price,  na.rm=TRUE),
     price_median = median(price,na.rm=TRUE)
 )
-
-
-listings2 %>% 
-  filter(neighborhood_num == " 19" & !is.na(review_scores_rating)) %>%
-  group_by(host_is_superhost) %>%
-  summarize(count = n())
-  
-
-
 ```
+While there were more hosts (95, 13% more), it is unlikely that this accounts for most of the differences observed earlier. This only represents around 1/3 of the total regular hosts and less than 20% of the superhosts.
 
 
-```{r}
-mean(listings$review_scores_rating/20, na.rm=-TRUE)
-# 2 bedrooms
-#3 beds
-# Accomodates 6
+# Correlation Analysis
+Because our data set has 50+ columns, we need to understand how some of these are related. We decided to use price as it is typically one of the most sensitive factors when booking a hotel or short-term rental.
 
-
-listings %>% 
-  group_by(room_type) %>% 
-  summarize(count = n())
-
-```
-
-
-```{r}
+Note - the reason why neighborhood is not correlated to price, is due to neighborhoods being assigned an arbitrary number.
+```{r correlation_analysis}
+# Select factors for anlaysis
 airbnb_corr_subset <- listings %>% 
-  select(accommodates, bedrooms, beds, price, host_is_superhost, room_type, number_of_reviews, review_scores_rating, neighborhood_num, bathrooms, longitude, latitude) %>% 
-  mutate(lat_test = latitude + longitude)
+  select(accommodates, 
+         bedrooms, 
+         beds, 
+         price, 
+         host_is_superhost, 
+         room_type, 
+         number_of_reviews, 
+         review_scores_rating, 
+         neighborhood_num, 
+         bathrooms,
+         longitude, 
+         latitude
+         ) %>%
+  mutate(lat_test = latitude + longitude) %>% 
+  select(everything(), -latitude, -longitude)
 
-airbnb_corr_subset$neighborhood_num <- as.numeric(airbnb_corr_subset$neighborhood_num)
-
+# Convert room type to number. Number is based on average cost, ascending
 airbnb_corr_subset <- airbnb_corr_subset %>% 
   mutate(host_is_superhost = ifelse(host_is_superhost == TRUE, 1, 0),
          room_type = case_when(
@@ -113,15 +170,12 @@ airbnb_corr_subset <- airbnb_corr_subset %>%
           room_type == "Hotel room" ~ 4)
          )
 
+# Prepare data for correlation analysis (correlogram)
 airbnb_corr_subset <- na.omit(airbnb_corr_subset)
+airbnb_corr_subset$neighborhood_num <- as.numeric(airbnb_corr_subset$neighborhood_num)
 corr_matrix <- cor(airbnb_corr_subset)
 
-
-listings %>% 
-  group_by(room_type) %>% 
-  summarize(count = n(),
-            avg_price = mean(price, na.rm=TRUE))
-
+# Create correlogram
 ggcorrplot(corr_matrix,
            hc.order=TRUE,
           method = "circle",
@@ -133,17 +187,14 @@ ggcorrplot(corr_matrix,
   theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
         panel.background = element_blank(), axis.line = element_line(colour = "black"),
         axis.text.x = element_text(angle = 50, hjust = 1, vjust=1))
-
 ```
 
 
+# Pricing & Rating Analysis
+NEED NOTES HERE
 
-```{r}
-listings$accommodates <- as.numeric(listings$accommodates)
-
-sum(is.na(listings$review_scores_rating))
-
-
+## Bedrooms
+```{r price_per_bedroom}
 listings %>% 
   filter(accommodates <= 10) %>% 
   ggplot(aes(x=accommodates, y=price, group=accommodates)) +
@@ -151,102 +202,73 @@ listings %>%
 ```
 
 
-
-```{r}
-listings2 <- listings %>% 
-  mutate(dollars_per_room = price / bedrooms,
-         dollars_per_accom = price / accommodates)
-
-
-listings2 %>% 
+```{r bedroom_pricing}
+listings %>% 
   group_by(bedrooms) %>% 
   summarize(counter = n(),
             cost = mean(price, na.rm = TRUE),
             dollars_per_room = mean(dollars_per_room, na.rm = TRUE),
             dollars_per_accom = mean(dollars_per_accom, na.rm=TRUE)
   )
-
-listings2 %>% 
-  group_by(neighbourhood_cleansed) %>% 
-  summarize(count = n(),
-            score_avg = mean(review_scores_location, na.rm=TRUE),
-            score_var = var(review_scores_location,  na.rm=TRUE))
-
-
-listings2 %>% 
-  group_by(neighbourhood_cleansed) %>% 
-  summarize(count = n(),
-            score_avg = mean(review_scores_location, na.rm=TRUE),
-            score_var = var(review_scores_location,  na.rm=TRUE)) %>% 
-  filter(!neighbourhood_cleansed==34 | !neighbourhood_cleansed==19) %>% 
-  ggplot(aes(x=score_avg, y=count)) +
-  geom_point(aes(size=score_var))
-
 ```
 
-```{r}
-listings2 %>% 
+
+## Neighborhoods
+```{r price_by_neighborhood}
+listings %>% 
   group_by(neighbourhood_cleansed) %>% 
   summarize(count = n(),
             price_avg = mean(price, na.rm=TRUE)) %>% 
   arrange(desc(price_avg)) %>% 
   head(10)
 
-
-listings2 %>% 
+# Price by location and number of bedrooms (not used)
+listings %>% 
   group_by(bedrooms, neighbourhood_cleansed) %>% 
-  summarize(price_avg = mean(price, na.rm=TRUE)) %>% 
-  filter(bedrooms >= 1 & bedrooms <= 6)
+  summarize(price_avg = round(mean(price, na.rm=TRUE),0)) %>% 
+  filter(bedrooms >= 1 & bedrooms <= 6) %>% 
+  arrange(desc(price_avg))
 ```
 
 
-
-```{r}
-loc_test <- listings2 %>%
-  filter(neighborhood_num %in% c(19, 17, 6, 5, 21)) %>% 
-  group_by(bedrooms, neighborhood_num) %>% 
+```{r rating_by_neighborhood}
+listings %>% 
+  group_by(neighbourhood_cleansed) %>% 
   summarize(count = n(),
-            price_avg = round(mean(price, na.rm=TRUE),2),
-            price_var = round(var(price, na.rm=TRUE),2)
-            )
-```
-
-
-
-```{r}
-
-super_test <- listings2 %>% 
-  group_by(host_is_superhost, neighborhood_num) %>% 
-  summarize(price = mean(price, na.rm=TRUE),
-            rating_avg = mean(review_scores_rating/20, na.rm=TRUE),
-            rating_med = median(review_scores_rating/20, na.rm=TRUE)
+            score_avg = mean(review_scores_location, na.rm=TRUE),
+            score_var = var(review_scores_location,  na.rm=TRUE)
   )
-
-listings2
-
 ```
 
 
-
-```{r}
-listings2 %>% 
-  ggplot(aes(x=review_scores_rating)) +
-  geom_histogram(binwidth=.5)
-  scale_x_continuous(limits=c(70,100),
-                     )
+## Ratings (General)
+Undestanding the distribution of Airbnb ratings for Nashville listings.
+```{r ratings_quantile}
+ratings_only <- data.frame(listings %>% filter(!is.na(ratings5)) %>% select(ratings5))
+quantile(ratings_only$ratings5, c(.1, .2, .3,.4,.5,.6,.7,.8,.9))
 ```
 
 
+```{r ratings_histogram_draft}
+listings %>% 
+  filter(!is.na(ratings5)) %>% 
+  ggplot(aes(x=ratings5)) +
+  geom_histogram(binwidth=.2) +
+  labs(x="Review Score", y="") +
+  scale_x_continuous(limits=c(0,5)) +
+  theme_bw()
+```
+Review_score_ratings was divided by 20 becuase they are on a 5-point scale in the Airbnb UI.
 
-
-```{r}
-listings2 %>% 
-  filter(!is.na(review_scores_rating)) %>% 
-  ggplot(aes(x=review_scores_rating/20)) +
+There listing distribution has a very long tail that would be hard to communicate. We made the the decision to show the vast majority of the data but exclude part of the tail for easier consumption by our audience.
+```{r ratings_histogram_final}
+listings %>% 
+  filter(!is.na(ratings5)) %>% 
+  ggplot(aes(x=ratings5)) +
   geom_histogram(binwidth=.05, color = "black", fill = "#c6d0d9") +
-  geom_vline(aes(xintercept=mean(review_scores_rating/20)),
+  geom_vline(aes(xintercept=mean(ratings5)),
             color="dark blue", linetype="dashed", size=.8) +
-  geom_vline(aes(xintercept=median(review_scores_rating/20)),
+  geom_vline(aes(xintercept=median(ratings5)),
             color="black", linetype="dashed", size=.8) +
   scale_x_continuous(limits=c(4,5),
                      breaks = seq(4,5, .25)) +
@@ -259,24 +281,19 @@ listings2 %>%
         axis.text.y = element_blank(),
         axis.ticks.y = element_blank(),
         text = element_text(size=18))
+```
 
 
-# 4660
-
-
-ratings_only <- data.frame(listings2 %>% filter(!is.na(review_5)) %>% select(review_5))
-quantile(ratings_only$review_5, c(.1, .2, .18, .21,.25, .2,.3,.4,.5,.6,.7,.8,.9))
-           
-
-
-listings2 %>% 
-  filter(!is.na(review_5) & bedrooms <= 4) %>% 
+```{r ratings_by_bedrooms}
+# Average, Median, and Variance of rating by count of bedrooms
+listings %>% 
+  filter(!is.na(ratings5) & bedrooms <= 4) %>% 
   group_by(bedrooms) %>% 
-  summarize(avg = mean(review_5),
-            var = var(review_5),
-            med = median(review_5)
+  summarize(avg = mean(ratings5),
+            var = var(ratings5),
+            med = median(ratings5),
+            count = n()
             )
-
 ```
 
 
