@@ -1,14 +1,21 @@
 # Quantile Precision
 **Assignment Goal**<br>
-Write a blog post to explain how you used computer simulation to understand the operating characteristics of the Martingale roulette strategy.
+Write a blog post to answer a series of questions related to the variation of the median (and a range of other quantiles).
 
 **Audience**<br>
-An intelligent freshman with little to no background in data science.
+The audience of your blog post is a Senior Data Scientist who you hope to work with in the future. Be sure to mention any assumptions of your solution.
 
-**Assignment Details**<br>
-* Explain how you used computer simulation to calculate the average earnings
-* Show how changing a parameter of the simulation has an impact on average earnings.
-* Explain how you used computer simulation to estimate the average number of plays before stopping.
+### Assignment Details
+For these distributions, create the below graphs and answer the below questions.
+* Calculate the length of the middle 95% of the sampling distribution. Your empirical sampling distribution should be at least 5000 draws.
+* Graph both Length vs p-th quantile and length vs density of this sampling distribution
+* When does the median have the tightest sampling distribution?
+
+**Distributions**
+* Normal
+* Exponential (rate = 1)
+* 2 Mixed Distributions (see code)
+
 
 ### Technology Used 
 **R** (tidyverse, data.table, ggplot2, gridExtra, RColorBrewer)
