@@ -1,7 +1,5 @@
 # Vanderbilt_MSDS
-This is a collection of work that has been done while a Master of Data Science student at Vanderbilt (2019-2021).
-
-Below is a brief overview of the courses taken to date. More information on the broader curriculum can be [found here](https://www.vanderbilt.edu/datascience/academics/msprogram/curriculum/).
+This is a collection of work that has been done while a Master of Data Science student at Vanderbilt (2019-2021). Below is a brief overview of the courses taken in our first semester (Fall 2019). More information on the broader curriculum can be [found here](https://www.vanderbilt.edu/datascience/academics/msprogram/curriculum/).
 
 **Principle of Programming & Simulation** - Introductary programming taught in both Python and R. Focused on effective software design and programming practices, how to program and evaluate a simulation, and how to apply modern resampling techniques in simulations.
 
