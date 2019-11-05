@@ -8,7 +8,7 @@ A number of fields (senior_citizen, dependents, etc.) have been converted to log
 Data Source (originally provided by IBM): https://www.kaggle.com/blastchar/telco-customer-churn
 
 ## Column Details
-customer_id                   Unique identifier for each customer<br>
+customer_id                Unique identifier for each customer<br>
 gender                        Customer's gender (male or female)<br>
 senior_citizen                TRUE/FALSE if customer is a senior citizen (65+ years old)<br>
 partner                       TRUE/FALSE if the customer has a partner (e.g. wife/husband)<br>
