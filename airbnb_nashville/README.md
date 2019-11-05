@@ -2,6 +2,12 @@
 **Assignment Goal**<br>
 Create a polished 'slidedoc', aimed at a targeted audience, that analyzes a data set of your choosing. This slidedoc should clearly present a hypothesis and analysis of a real-world problem for your audience.
 
+
+**Partners**<br>
+* [Rastko Stojin](https://github.com/ok-tsar)
+* [Shaswat Rajput](https://github.com/shaswat01)
+
+
 **Purpose**<br>
 Over the past several years, Nashville has been one of the fastest growing cities in the county. A side effect of this growth is that hotels have reached $300-$500 per night for a room. Many tourists and visitors are resorting to short-term rentals With over 7,000 listings, how do you pick the right one?
 
@@ -18,16 +24,11 @@ On their website, Inside Airbnb does call out significant caveats related to the
 For our analysis, we focused on listing data. If we were to expand or continue our analysis we would also perform a textual analysis of property reviews.
 
 
-### Technology Used 
-* R (tidyverse, ggplot2, ggcorplot, stringr)
-* Tableau
-
-
 ### Description of files
 * airbnb_nashville.rmd - Working document for analysis and vizualziations<br>
 * presentation.pdf - Completed presentation
 
 
-### Partners
-* [Rastko Stojin](https://github.com/ok-tsar)
-* [Shaswat Rajput](https://github.com/shaswat01)
+### Technology Used 
+* R (tidyverse, ggplot2, ggcorplot, stringr)
+* Tableau
