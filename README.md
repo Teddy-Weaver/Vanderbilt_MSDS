@@ -3,6 +3,7 @@ This respository is a collection of work that has been completed while a Master 
 
 Below is a brief overview of the courses taken in our first semester (Fall 2019). More information on the broader curriculum can be [found here](https://www.vanderbilt.edu/datascience/academics/msprogram/curriculum/).
 
+
 **Principle of Programming & Simulation** - Introductary programming taught in both Python and R. Focused on effective software design and programming practices, how to program and evaluate a simulation, and how to apply modern resampling techniques in simulations.
 
 **Probability of Statistical Inference** - Fundamentals of probability theory and statistical inference. Topics in probability include random variables, distributions, expectations, moments, Jensen’s inequality, law of large numbers, central limit theorem. Topics in inference include maximum likelihood, point estimation (Bayesian, frequentist, and likelihood versions); hypothesis and significance testing; re-sampling techniques.
