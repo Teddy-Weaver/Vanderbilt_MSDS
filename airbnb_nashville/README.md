@@ -1,4 +1,5 @@
 # Airbnb Nashville
+**Assignment Goal**<br>
 Create a polished 'slidedoc', aimed at a targeted audience, that analyzes a data set of your choosing. This slidedoc should clearly present a hypothesis and analysis of a real-world problem for your audience.
 
 **Purpose**<br>
