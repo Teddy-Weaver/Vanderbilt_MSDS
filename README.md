@@ -1,5 +1,5 @@
 # About this Repository
-This respository is a collection of work that has been completed while a Master of Data Science student at Vanderbilt (2019-2021).
+This respository is a collection of work that has been completed while a Master of Data Science student at Vanderbilt (2019-2021). Most of our work to-date has been with R although am looking to add other work that used Python.
 
 Below is a brief overview of the courses taken in our first semester (Fall 2019). More information on the broader curriculum can be [found here](https://www.vanderbilt.edu/datascience/academics/msprogram/curriculum/).
 
