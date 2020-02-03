@@ -4,7 +4,7 @@ README - Telco Customer Churn Data
 Predict if a Telco (e.g. Comcast, AT&T) customer will churn (stop subscribing) from some customer information and details about their subscriptions. The 'churn' column indicates whether or not the respective customer has stopped subscribing. The goal is to predict this as accurately as possible.
 
 ## File Description
-* 10-import.rmd: Import and clean data. Includes asserts to ____ data quality.
+* 10-import.rmd: Import and clean data. Includes asserts to ensure data quality.
 * 30-feature-engineering.rmd: Create 4 features based on a subscriber services and monthly charges.
 * 40-modeling.rmd: Add desired features from 30-feature-engineering and prep dataframe for modeling. No modeling was done.
 
